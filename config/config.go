@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"time"
 
 	"github.com/cloudfoundry-incubator/cf-lager"
 	"github.com/pivotal-cf-experimental/service-config"
@@ -13,44 +12,48 @@ import (
 )
 
 type Config struct {
-	ProxyIPs     []string
-    BackendIPs   []string
-    ElbIP        []string
-    DatadogKey   string
-    MySqlUser    string
-    MySqlPwd     string
-    NumBenchmarkRows int
-    BenchmarkDB  string
-    Logger       lager.Logger
+	ProxyIPs         []string `validate:"min=1"`
+	BackendIPs       []string `validate:"min=1"`
+	ElbIP            string   `validate:"nonzero"`
+	DatadogKey       string   `validate:"nonzero"`
+	MySqlUser        string   `validate:"nonzero"`
+	MySqlPwd         string   `validate:"nonzero"`
+	NumBenchmarkRows int      `validate:"nonzero"`
+	BenchmarkDB      string   `validate:"nonzero"`
+	Logger           lager.Logger
 }
 
 func NewConfig(osArgs []string) (*Config, error) {
-	var config Config
+	var rootConfig Config
 
-	configurationOptions := osArgs[0:]
+	binaryName := osArgs[0]
+	configurationOptions := osArgs[1:]
 
 	serviceConfig := service_config.New()
-	flags := flag.NewFlagSet("benchmarkApp", flag.ExitOnError)
+	flags := flag.NewFlagSet(binaryName, flag.ExitOnError)
 
 	cf_lager.AddFlags(flags)
 
 	serviceConfig.AddFlags(flags)
 	flags.Parse(configurationOptions)
 
-	err := serviceConfig.Read(&config)
+	err := serviceConfig.Read(&rootConfig)
 
-	config.Logger, _ = cf_lager.New("benchmarkApp")
+	rootConfig.Logger, _ = cf_lager.New(binaryName)
 
-    return &config, err
+	return &rootConfig, err
 }
 
 func (c Config) Validate() error {
-	/*configErr := validator.Validate(c)
+	rootConfigErr := validator.Validate(c)
 	var errString string
-	if configErr != nil {
-		errString = formatErrorString(configErr, "")
-	}*/
+	if rootConfigErr != nil {
+		errString = formatErrorString(rootConfigErr, "")
+	}
 
+	if len(errString) > 0 {
+		return errors.New(fmt.Sprintf("Validation errors: %s\n", errString))
+	}
 	return nil
 }
 
