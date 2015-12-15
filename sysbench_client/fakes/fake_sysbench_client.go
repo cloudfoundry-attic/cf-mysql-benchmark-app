@@ -8,10 +8,10 @@ import (
 )
 
 type FakeSysbenchClient struct {
-	StartStub        func(string) (string, error)
+	StartStub        func(int) (string, error)
 	startMutex       sync.RWMutex
 	startArgsForCall []struct {
-		arg1 string
+		arg1 int
 	}
 	startReturns struct {
 		result1 string
@@ -19,10 +19,10 @@ type FakeSysbenchClient struct {
 	}
 }
 
-func (fake *FakeSysbenchClient) Start(arg1 string) (string, error) {
+func (fake *FakeSysbenchClient) Start(arg1 int) (string, error) {
 	fake.startMutex.Lock()
 	fake.startArgsForCall = append(fake.startArgsForCall, struct {
-		arg1 string
+		arg1 int
 	}{arg1})
 	fake.startMutex.Unlock()
 	if fake.StartStub != nil {
@@ -38,7 +38,7 @@ func (fake *FakeSysbenchClient) StartCallCount() int {
 	return len(fake.startArgsForCall)
 }
 
-func (fake *FakeSysbenchClient) StartArgsForCall(i int) string {
+func (fake *FakeSysbenchClient) StartArgsForCall(i int) int {
 	fake.startMutex.RLock()
 	defer fake.startMutex.RUnlock()
 	return fake.startArgsForCall[i].arg1

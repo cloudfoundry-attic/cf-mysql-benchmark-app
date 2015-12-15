@@ -3,12 +3,14 @@ package api
 import (
 	"net/http"
 
+	"fmt"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client"
 	"github.com/tedsuo/rata"
+	"strconv"
 )
 
-type RunFunc func(node string) (string, error)
+type RunFunc func(nodeIndex int) (string, error)
 
 type Api struct {
 	Routes         rata.Routes
@@ -46,13 +48,19 @@ func NewRouter(api Api) (http.Handler, error) {
 
 func (r router) getInsecureHandler(run RunFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		targetNode := rata.Param(req, "node")
+		targetNode, err := strconv.Atoi(rata.Param(req, "node"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			errMsg := fmt.Sprintf("Could not parse node index: %s", err.Error())
+			w.Write([]byte(errMsg))
+			return
+		}
+
 		body, err := run(targetNode)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
-			return
 		}
 
 		w.Write([]byte(body))

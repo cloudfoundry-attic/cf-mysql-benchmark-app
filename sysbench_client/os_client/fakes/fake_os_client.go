@@ -8,48 +8,50 @@ import (
 )
 
 type FakeOsClient struct {
-	ExecStub        func(string, ...string) error
-	execMutex       sync.RWMutex
-	execArgsForCall []struct {
+	CombinedOutputStub        func(string, ...string) ([]byte, error)
+	combinedOutputMutex       sync.RWMutex
+	combinedOutputArgsForCall []struct {
 		arg1 string
 		arg2 []string
 	}
-	execReturns struct {
-		result1 error
+	combinedOutputReturns struct {
+		result1 []byte
+		result2 error
 	}
 }
 
-func (fake *FakeOsClient) Exec(arg1 string, arg2 ...string) error {
-	fake.execMutex.Lock()
-	fake.execArgsForCall = append(fake.execArgsForCall, struct {
+func (fake *FakeOsClient) CombinedOutput(arg1 string, arg2 ...string) ([]byte, error) {
+	fake.combinedOutputMutex.Lock()
+	fake.combinedOutputArgsForCall = append(fake.combinedOutputArgsForCall, struct {
 		arg1 string
 		arg2 []string
 	}{arg1, arg2})
-	fake.execMutex.Unlock()
-	if fake.ExecStub != nil {
-		return fake.ExecStub(arg1, arg2...)
+	fake.combinedOutputMutex.Unlock()
+	if fake.CombinedOutputStub != nil {
+		return fake.CombinedOutputStub(arg1, arg2...)
 	} else {
-		return fake.execReturns.result1
+		return fake.combinedOutputReturns.result1, fake.combinedOutputReturns.result2
 	}
 }
 
-func (fake *FakeOsClient) ExecCallCount() int {
-	fake.execMutex.RLock()
-	defer fake.execMutex.RUnlock()
-	return len(fake.execArgsForCall)
+func (fake *FakeOsClient) CombinedOutputCallCount() int {
+	fake.combinedOutputMutex.RLock()
+	defer fake.combinedOutputMutex.RUnlock()
+	return len(fake.combinedOutputArgsForCall)
 }
 
-func (fake *FakeOsClient) ExecArgsForCall(i int) (string, []string) {
-	fake.execMutex.RLock()
-	defer fake.execMutex.RUnlock()
-	return fake.execArgsForCall[i].arg1, fake.execArgsForCall[i].arg2
+func (fake *FakeOsClient) CombinedOutputArgsForCall(i int) (string, []string) {
+	fake.combinedOutputMutex.RLock()
+	defer fake.combinedOutputMutex.RUnlock()
+	return fake.combinedOutputArgsForCall[i].arg1, fake.combinedOutputArgsForCall[i].arg2
 }
 
-func (fake *FakeOsClient) ExecReturns(result1 error) {
-	fake.ExecStub = nil
-	fake.execReturns = struct {
-		result1 error
-	}{result1}
+func (fake *FakeOsClient) CombinedOutputReturns(result1 []byte, result2 error) {
+	fake.CombinedOutputStub = nil
+	fake.combinedOutputReturns = struct {
+		result1 []byte
+		result2 error
+	}{result1, result2}
 }
 
 var _ os_client.OsClient = new(FakeOsClient)

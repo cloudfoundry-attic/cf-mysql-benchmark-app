@@ -23,10 +23,8 @@ var _ = Describe("Config", func() {
 		})
 
 		BeforeEach(func() {
-			os.Setenv("PROXY_IPS", "some-proxy-ip,another-proxy-ip")
-			os.Setenv("BACKEND_IPS", "some-backend-ip,another-backend-ip")
-			os.Setenv("ELB_IP", "some-elb-ip")
 			os.Setenv("DATADOG_KEY", "some-datadog-key")
+			os.Setenv("MYSQL_HOSTS", "backend1=1.1.1.1,proxy1=2.2.2.2,elb=some.dns.name")
 			os.Setenv("MYSQL_USER", "some-mysql-user")
 			os.Setenv("MYSQL_PASSWORD", "some-mysql-password")
 			os.Setenv("NUMBER_TEST_ROWS", "25")
@@ -35,10 +33,8 @@ var _ = Describe("Config", func() {
 		})
 
 		AfterEach(func() {
-			os.Unsetenv("PROXY_IPS")
-			os.Unsetenv("BACKEND_IPS")
-			os.Unsetenv("ELB_IP")
 			os.Unsetenv("DATADOG_KEY")
+			os.Unsetenv("MYSQL_HOSTS")
 			os.Unsetenv("MYSQL_USER")
 			os.Unsetenv("MYSQL_PASSWORD")
 			os.Unsetenv("NUMBER_TEST_ROWS")
@@ -51,9 +47,36 @@ var _ = Describe("Config", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("returns an error if the ELB IP is blank", func() {
-			err := test_helpers.IsRequiredField(config, "ElbIP")
+		It("returns an error if MySQL Hosts is blank", func() {
+			err := test_helpers.IsRequiredField(config, "MySqlHosts")
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an error if MySqlHosts.Name is blank", func() {
+			err := test_helpers.IsRequiredField(config, "MySqlHosts.Name")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an error if MySqlHosts.Address is blank", func() {
+			err := test_helpers.IsRequiredField(config, "MySqlHosts.Address")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("parses MySQL Hosts into key value pair", func() {
+			Expect(config.MySqlHosts).To(ConsistOf([]conf.MySqlHost{
+				conf.MySqlHost{
+					Name:    "backend1",
+					Address: "1.1.1.1",
+				},
+				conf.MySqlHost{
+					Name:    "proxy1",
+					Address: "2.2.2.2",
+				},
+				conf.MySqlHost{
+					Name:    "elb",
+					Address: "some.dns.name",
+				},
+			}))
 		})
 
 		It("returns an error if MySQL user is blank", func() {
@@ -68,16 +91,6 @@ var _ = Describe("Config", func() {
 
 		It("returns an error if Benchmark DB name is blank", func() {
 			err := test_helpers.IsRequiredField(config, "BenchmarkDB")
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("returns an error if the Proxy IPs array is empty", func() {
-			err := test_helpers.IsRequiredField(config, "ProxyIPs")
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("returns an error if the Backend IPs array is empty", func() {
-			err := test_helpers.IsRequiredField(config, "BackendIPs")
 			Expect(err).ToNot(HaveOccurred())
 		})
 

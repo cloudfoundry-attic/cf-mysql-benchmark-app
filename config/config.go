@@ -14,16 +14,19 @@ import (
 )
 
 type Config struct {
-	ProxyIPs         []string `validate:"min=1"`
-	BackendIPs       []string `validate:"min=1"`
-	ElbIP            string   `validate:"nonzero"`
-	DatadogKey       string   `validate:"nonzero"`
-	MySqlUser        string   `validate:"nonzero"`
-	MySqlPwd         string   `validate:"nonzero"`
-	NumBenchmarkRows int      `validate:"nonzero"`
-	BenchmarkDB      string   `validate:"nonzero"`
-	Port             int      `validate:"nonzero"`
+	MySqlHosts       []MySqlHost `validate:"min=1"`
+	DatadogKey       string      `validate:"nonzero"`
+	MySqlUser        string      `validate:"nonzero"`
+	MySqlPwd         string      `validate:"nonzero"`
+	NumBenchmarkRows int         `validate:"nonzero"`
+	BenchmarkDB      string      `validate:"nonzero"`
+	Port             int         `validate:"nonzero"`
 	Logger           lager.Logger
+}
+
+type MySqlHost struct {
+	Name    string `validate:"nonzero"`
+	Address string `validate:"nonzero"`
 }
 
 func NewConfig() *Config {
@@ -42,9 +45,15 @@ func (c *Config) ParseEnv() error {
 	c.NumBenchmarkRows, _ = strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
 	c.Port, _ = strconv.Atoi(os.Getenv("PORT"))
 
-	c.ProxyIPs = strings.Split(os.Getenv("PROXY_IPS"), ",")
-	c.BackendIPs = strings.Split(os.Getenv("BACKEND_IPS"), ",")
-	c.ElbIP = os.Getenv("ELB_IP")
+	c.MySqlHosts = []MySqlHost{}
+	hosts := strings.Split(os.Getenv("MYSQL_HOSTS"), ",")
+	for _, host := range hosts {
+		newHost := MySqlHost{
+			Name:    strings.Split(host, "=")[0],
+			Address: strings.Split(host, "=")[1],
+		}
+		c.MySqlHosts = append(c.MySqlHosts, newHost)
+	}
 	c.DatadogKey = os.Getenv("DATADOG_KEY")
 	c.MySqlUser = os.Getenv("MYSQL_USER")
 	c.MySqlPwd = os.Getenv("MYSQL_PASSWORD")
@@ -58,6 +67,17 @@ func (c Config) Validate() error {
 	var errString string
 	if rootConfigErr != nil {
 		errString = formatErrorString(rootConfigErr, "")
+	}
+
+	// validator.Validate does not work on nested arrays
+	for i, host := range c.MySqlHosts {
+		nestedErr := validator.Validate(host)
+		if nestedErr != nil {
+			errString += formatErrorString(
+				nestedErr,
+				fmt.Sprintf("MySqlHosts[%d].", i),
+			)
+		}
 	}
 
 	if len(errString) > 0 {

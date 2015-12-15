@@ -8,7 +8,7 @@ import (
 )
 
 type SysbenchClient interface {
-	Start(string) (string, error)
+	Start(int) (string, error)
 }
 
 type sysbenchClient struct {
@@ -23,20 +23,20 @@ func New(osClient os_client.OsClient, config conf.Config) SysbenchClient {
 	}
 }
 
-func (s sysbenchClient) Start(nodeName string) (string, error) {
-	commandArgs := s.makeCommand("run")
+func (s sysbenchClient) Start(nodeIndex int) (string, error) {
+	commandArgs := s.makeCommand(nodeIndex, "run")
 
-	err := s.osClient.Exec("sysbench", commandArgs...)
+	output, err := s.osClient.CombinedOutput("sysbench", commandArgs...)
 	if err != nil {
-		return fmt.Sprintf("Sysbench failed to run! Error: %s", err.Error()), err
+		return string(output), fmt.Errorf("Sysbench failed to run! Error: %s", err.Error())
 	}
-	return fmt.Sprintf("Successfully ran test on node: %s", nodeName), nil
+	return string(output), nil
 }
 
-func (s sysbenchClient) makeCommand(sysbenchCommand string) []string {
+func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []string {
 	cmdArgs := []string{
-		fmt.Sprintf("--mysql-host=%s", s.config.ElbIP),
 		fmt.Sprintf("--mysql-port=%d", 3600),
+		fmt.Sprintf("--mysql-host=%s", s.config.MySqlHosts[nodeIndex].Address),
 		fmt.Sprintf("--mysql-user=%s", s.config.MySqlUser),
 		fmt.Sprintf("--mysql-password=%s", s.config.MySqlPwd),
 		fmt.Sprintf("--mysql-db=%s", s.config.BenchmarkDB),
