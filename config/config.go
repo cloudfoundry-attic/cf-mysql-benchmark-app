@@ -4,9 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/cloudfoundry-incubator/cf-lager"
-	"github.com/pivotal-cf-experimental/service-config"
 	"github.com/pivotal-golang/lager"
 	"gopkg.in/validator.v2"
 )
@@ -23,25 +25,27 @@ type Config struct {
 	Logger           lager.Logger
 }
 
-func NewConfig(osArgs []string) (*Config, error) {
+func NewConfig() (*Config, error) {
 	var rootConfig Config
 
-	binaryName := osArgs[0]
-	configurationOptions := osArgs[1:]
-
-	serviceConfig := service_config.New()
-	flags := flag.NewFlagSet(binaryName, flag.ExitOnError)
-
+	flags := flag.NewFlagSet("cf-mysql-benchmark", flag.ExitOnError)
 	cf_lager.AddFlags(flags)
+	rootConfig.Logger, _ = cf_lager.New("CF Mysql Benchmarking")
 
-	serviceConfig.AddFlags(flags)
-	flags.Parse(configurationOptions)
+	benchmarkRows, err := strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
+	if err != nil {
+		return nil, err
+	}
+	rootConfig.ProxyIPs = strings.Split(os.Getenv("PROXY_IPS"), ",")
+	rootConfig.BackendIPs = strings.Split(os.Getenv("BACKEND_IPS"), ",")
+	rootConfig.ElbIP = os.Getenv("ELB_IP")
+	rootConfig.DatadogKey = os.Getenv("DATADOG_KEY")
+	rootConfig.MySqlUser = os.Getenv("BENCHMARK_MYSQL_USER")
+	rootConfig.MySqlPwd = os.Getenv("BENCHMARK_MYSQL_PASSWORD")
+	rootConfig.NumBenchmarkRows = benchmarkRows
+	rootConfig.BenchmarkDB = os.Getenv("BENCHMARK_TEST_DB")
 
-	err := serviceConfig.Read(&rootConfig)
-
-	rootConfig.Logger, _ = cf_lager.New(binaryName)
-
-	return &rootConfig, err
+	return &rootConfig, nil
 }
 
 func (c Config) Validate() error {

@@ -1,7 +1,7 @@
 package config_test
 
 import (
-	"fmt"
+	"os"
 
 	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	. "github.com/onsi/ginkgo"
@@ -13,32 +13,35 @@ var _ = Describe("Config", func() {
 	Describe("Validate", func() {
 
 		var (
-			config    *conf.Config
-			rawConfig string
+			config *conf.Config
 		)
 
 		JustBeforeEach(func() {
-			osArgs := []string{
-				"benchmarkApp",
-				fmt.Sprintf("-config=%s", rawConfig),
-			}
-
 			var err error
-			config, err = conf.NewConfig(osArgs)
-			Expect(err).ToNot(HaveOccurred())
+			config, err = conf.NewConfig()
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		BeforeEach(func() {
-			rawConfig = `{
-				"ProxyIPs": ["some-proxy-ip", "another-proxy-ip"],
-				"BackendIPs": ["some-backend-ip", "another-backend-ip"],
-				"ElbIP": "some-elb-ip",
-				"DatadogKey": "some-datadog",
-				"MySqlUser": "some-username",
-				"MySqlPwd": "some-password",
-				"NumBenchmarkRows": 7,
-				"BenchmarkDB": "some-db-name"
-			}`
+			os.Setenv("PROXY_IPS", "some-proxy-ip,another-proxy-ip")
+			os.Setenv("BACKEND_IPS", "some-backend-ip,another-backend-ip")
+			os.Setenv("ELB_IP", "some-elb-ip")
+			os.Setenv("DATADOG_KEY", "some-datadog-key")
+			os.Setenv("BENCHMARK_MYSQL_USER", "some-mysql-user")
+			os.Setenv("BENCHMARK_MYSQL_PASSWORD", "some-mysql-password")
+			os.Setenv("NUMBER_TEST_ROWS", "25")
+			os.Setenv("BENCHMARK_TEST_DB", "some-db-name")
+		})
+
+		AfterEach(func() {
+			os.Setenv("PROXY_IPS", "")
+			os.Setenv("BACKEND_IPS", "")
+			os.Setenv("ELB_IP", "")
+			os.Setenv("DATADOG_KEY", "")
+			os.Setenv("BENCHMARK_MYSQL_USER", "")
+			os.Setenv("BENCHMARK_MYSQL_PASSWORD", "")
+			os.Setenv("NUMBER_TEST_ROWS", "")
+			os.Setenv("BENCHMARK_TEST_DB", "")
 		})
 
 		It("does not return error on valid config", func() {
