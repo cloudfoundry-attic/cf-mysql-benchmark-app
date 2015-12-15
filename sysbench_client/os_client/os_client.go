@@ -3,7 +3,7 @@ package os_client
 import "os/exec"
 
 type OsClient interface {
-	Exec(...string) error
+	Exec(string, ...string) error
 }
 
 type osClient struct{}

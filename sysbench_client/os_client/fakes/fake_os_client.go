@@ -8,24 +8,26 @@ import (
 )
 
 type FakeOsClient struct {
-	ExecStub        func(...string) error
+	ExecStub        func(string, ...string) error
 	execMutex       sync.RWMutex
 	execArgsForCall []struct {
-		arg1 []string
+		arg1 string
+		arg2 []string
 	}
 	execReturns struct {
 		result1 error
 	}
 }
 
-func (fake *FakeOsClient) Exec(arg1 ...string) error {
+func (fake *FakeOsClient) Exec(arg1 string, arg2 ...string) error {
 	fake.execMutex.Lock()
 	fake.execArgsForCall = append(fake.execArgsForCall, struct {
-		arg1 []string
-	}{arg1})
+		arg1 string
+		arg2 []string
+	}{arg1, arg2})
 	fake.execMutex.Unlock()
 	if fake.ExecStub != nil {
-		return fake.ExecStub(arg1...)
+		return fake.ExecStub(arg1, arg2...)
 	} else {
 		return fake.execReturns.result1
 	}
@@ -37,10 +39,10 @@ func (fake *FakeOsClient) ExecCallCount() int {
 	return len(fake.execArgsForCall)
 }
 
-func (fake *FakeOsClient) ExecArgsForCall(i int) []string {
+func (fake *FakeOsClient) ExecArgsForCall(i int) (string, []string) {
 	fake.execMutex.RLock()
 	defer fake.execMutex.RUnlock()
-	return fake.execArgsForCall[i].arg1
+	return fake.execArgsForCall[i].arg1, fake.execArgsForCall[i].arg2
 }
 
 func (fake *FakeOsClient) ExecReturns(result1 error) {

@@ -16,7 +16,7 @@ type sysbenchClient struct {
 	config   conf.Config
 }
 
-func New(osClient os_client.OsClient, config conf.Config) *sysbenchClient {
+func New(osClient os_client.OsClient, config conf.Config) SysbenchClient {
 	return &sysbenchClient{
 		osClient: osClient,
 		config:   config,
@@ -24,9 +24,9 @@ func New(osClient os_client.OsClient, config conf.Config) *sysbenchClient {
 }
 
 func (s sysbenchClient) Start(nodeName string) (string, error) {
-	command := s.makeCommand("run")
+	commandArgs := s.makeCommand("run")
 
-	err := s.osClient.Exec(command...)
+	err := s.osClient.Exec("sysbench", commandArgs...)
 	if err != nil {
 		return fmt.Sprintf("Sysbench failed to run! Error: %s", err.Error()), err
 	}
@@ -34,9 +34,7 @@ func (s sysbenchClient) Start(nodeName string) (string, error) {
 }
 
 func (s sysbenchClient) makeCommand(sysbenchCommand string) []string {
-	command := "sysbench"
 	cmdArgs := []string{
-		command,
 		fmt.Sprintf("--mysql-host=%s", s.config.ElbIP),
 		fmt.Sprintf("--mysql-port=%d", 3600),
 		fmt.Sprintf("--mysql-user=%s", s.config.MySqlUser),

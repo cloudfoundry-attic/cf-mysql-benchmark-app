@@ -17,7 +17,8 @@ var _ = Describe("SysbenchClient", func() {
 		sysbenchClient sysbench_client.SysbenchClient
 		config         conf.Config
 		nodeName       string
-		osCmd          []string
+		cmdName          string
+		cmdArgs          []string
 	)
 
 	BeforeEach(func() {
@@ -35,8 +36,8 @@ var _ = Describe("SysbenchClient", func() {
 
 	Context("start", func() {
 		BeforeEach(func() {
-			osCmd = []string{
-				"sysbench",
+			cmdName = "sysbench"
+			cmdArgs = []string{
 				fmt.Sprintf("--mysql-host=%s", config.ElbIP),
 				fmt.Sprintf("--mysql-port=%d", 3600),
 				fmt.Sprintf("--mysql-user=%s", config.MySqlUser),
@@ -58,7 +59,9 @@ var _ = Describe("SysbenchClient", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(str).To(ContainSubstring("Successfully ran"))
 				Expect(osClient.ExecCallCount()).To(Equal(1))
-				Expect(osClient.ExecArgsForCall(0)).To(Equal(osCmd))
+				actualName, actualArgs := osClient.ExecArgsForCall(0)
+				Expect(actualName).To(Equal(cmdName))
+				Expect(actualArgs).To(Equal(cmdArgs))
 			})
 		})
 
@@ -69,7 +72,9 @@ var _ = Describe("SysbenchClient", func() {
 
 			It("bubbles the error back up", func() {
 				_, err := sysbenchClient.Start(nodeName)
-				Expect(osClient.ExecArgsForCall(0)).To(Equal(osCmd))
+				actualName, actualArgs := osClient.ExecArgsForCall(0)
+				Expect(actualName).To(Equal(cmdName))
+				Expect(actualArgs).To(Equal(cmdArgs))
 
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("here's an error!"))
