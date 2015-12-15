@@ -17,8 +17,8 @@ var _ = Describe("SysbenchClient", func() {
 		sysbenchClient sysbench_client.SysbenchClient
 		config         conf.Config
 		nodeName       string
-		cmdName          string
-		cmdArgs          []string
+		cmdName        string
+		cmdArgs        []string
 	)
 
 	BeforeEach(func() {

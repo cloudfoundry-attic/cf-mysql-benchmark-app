@@ -3,11 +3,11 @@ package main
 import (
 	"net/http"
 
+	"fmt"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/api"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client/os_client"
-"fmt"
 )
 
 func main() {
