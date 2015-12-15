@@ -22,30 +22,35 @@ type Config struct {
 	MySqlPwd         string   `validate:"nonzero"`
 	NumBenchmarkRows int      `validate:"nonzero"`
 	BenchmarkDB      string   `validate:"nonzero"`
+	Port             int      `validate:"nonzero"`
 	Logger           lager.Logger
 }
 
-func NewConfig() (*Config, error) {
-	var rootConfig Config
+func NewConfig() *Config {
+	rootConfig := Config{}
 
 	flags := flag.NewFlagSet("cf-mysql-benchmark", flag.ExitOnError)
 	cf_lager.AddFlags(flags)
 	rootConfig.Logger, _ = cf_lager.New("CF Mysql Benchmarking")
 
-	benchmarkRows, err := strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
-	if err != nil {
-		return nil, err
-	}
-	rootConfig.ProxyIPs = strings.Split(os.Getenv("PROXY_IPS"), ",")
-	rootConfig.BackendIPs = strings.Split(os.Getenv("BACKEND_IPS"), ",")
-	rootConfig.ElbIP = os.Getenv("ELB_IP")
-	rootConfig.DatadogKey = os.Getenv("DATADOG_KEY")
-	rootConfig.MySqlUser = os.Getenv("BENCHMARK_MYSQL_USER")
-	rootConfig.MySqlPwd = os.Getenv("BENCHMARK_MYSQL_PASSWORD")
-	rootConfig.NumBenchmarkRows = benchmarkRows
-	rootConfig.BenchmarkDB = os.Getenv("BENCHMARK_TEST_DB")
+	return &rootConfig
+}
 
-	return &rootConfig, nil
+func (c *Config) ParseEnv() error {
+
+	// will default to 0 if strconv fails
+	c.NumBenchmarkRows, _ = strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
+	c.Port, _ = strconv.Atoi(os.Getenv("PORT"))
+
+	c.ProxyIPs = strings.Split(os.Getenv("PROXY_IPS"), ",")
+	c.BackendIPs = strings.Split(os.Getenv("BACKEND_IPS"), ",")
+	c.ElbIP = os.Getenv("ELB_IP")
+	c.DatadogKey = os.Getenv("DATADOG_KEY")
+	c.MySqlUser = os.Getenv("BENCHMARK_MYSQL_USER")
+	c.MySqlPwd = os.Getenv("BENCHMARK_MYSQL_PASSWORD")
+	c.BenchmarkDB = os.Getenv("BENCHMARK_TEST_DB")
+
+	return nil
 }
 
 func (c Config) Validate() error {

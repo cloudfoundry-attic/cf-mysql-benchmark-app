@@ -17,8 +17,8 @@ var _ = Describe("Config", func() {
 		)
 
 		JustBeforeEach(func() {
-			var err error
-			config, err = conf.NewConfig()
+			config = conf.NewConfig()
+			err := config.ParseEnv()
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -31,17 +31,19 @@ var _ = Describe("Config", func() {
 			os.Setenv("BENCHMARK_MYSQL_PASSWORD", "some-mysql-password")
 			os.Setenv("NUMBER_TEST_ROWS", "25")
 			os.Setenv("BENCHMARK_TEST_DB", "some-db-name")
+			os.Setenv("PORT", "9999")
 		})
 
 		AfterEach(func() {
-			os.Setenv("PROXY_IPS", "")
-			os.Setenv("BACKEND_IPS", "")
-			os.Setenv("ELB_IP", "")
-			os.Setenv("DATADOG_KEY", "")
-			os.Setenv("BENCHMARK_MYSQL_USER", "")
-			os.Setenv("BENCHMARK_MYSQL_PASSWORD", "")
-			os.Setenv("NUMBER_TEST_ROWS", "")
-			os.Setenv("BENCHMARK_TEST_DB", "")
+			os.Unsetenv("PROXY_IPS")
+			os.Unsetenv("BACKEND_IPS")
+			os.Unsetenv("ELB_IP")
+			os.Unsetenv("DATADOG_KEY")
+			os.Unsetenv("BENCHMARK_MYSQL_USER")
+			os.Unsetenv("BENCHMARK_MYSQL_PASSWORD")
+			os.Unsetenv("NUMBER_TEST_ROWS")
+			os.Unsetenv("BENCHMARK_TEST_DB")
+			os.Unsetenv("PORT")
 		})
 
 		It("does not return error on valid config", func() {
@@ -70,15 +72,18 @@ var _ = Describe("Config", func() {
 		})
 
 		It("returns an error if the Proxy IPs array is empty", func() {
-			config.ProxyIPs = []string{}
-			err := config.Validate()
-			Expect(err).To(HaveOccurred())
+			err := test_helpers.IsRequiredField(config, "ProxyIPs")
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("returns an error if the Backend IPs array is empty", func() {
-			config.BackendIPs = []string{}
-			err := config.Validate()
-			Expect(err).To(HaveOccurred())
+			err := test_helpers.IsRequiredField(config, "BackendIPs")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns an error if Port is blank", func() {
+			err := test_helpers.IsRequiredField(config, "Port")
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })
