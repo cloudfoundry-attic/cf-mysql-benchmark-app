@@ -20,6 +20,12 @@ type router struct {
 	api Api
 }
 
+func DefaultRoutes() rata.Routes {
+	return rata.Routes{
+		{Name: "start_test", Method: "POST", Path: "/start/:node"},
+	}
+}
+
 func NewRouter(api Api) (http.Handler, error) {
 	r := router{api: api}
 
@@ -36,12 +42,6 @@ func NewRouter(api Api) (http.Handler, error) {
 	}
 
 	return handler, nil
-}
-
-func DefaultRoutes() rata.Routes {
-	return rata.Routes{
-		{Name: "start_test", Method: "POST", Path: "/start/:node"},
-	}
 }
 
 func (r router) getInsecureHandler(run RunFunc) http.Handler {

@@ -3,9 +3,9 @@ package config_test
 import (
 	"fmt"
 
+	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/pivotal-cf-experimental/service-config/test_helpers"
 )
 
