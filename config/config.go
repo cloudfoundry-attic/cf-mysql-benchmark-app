@@ -46,9 +46,9 @@ func (c *Config) ParseEnv() error {
 	c.BackendIPs = strings.Split(os.Getenv("BACKEND_IPS"), ",")
 	c.ElbIP = os.Getenv("ELB_IP")
 	c.DatadogKey = os.Getenv("DATADOG_KEY")
-	c.MySqlUser = os.Getenv("BENCHMARK_MYSQL_USER")
-	c.MySqlPwd = os.Getenv("BENCHMARK_MYSQL_PASSWORD")
-	c.BenchmarkDB = os.Getenv("BENCHMARK_TEST_DB")
+	c.MySqlUser = os.Getenv("MYSQL_USER")
+	c.MySqlPwd = os.Getenv("MYSQL_PASSWORD")
+	c.BenchmarkDB = os.Getenv("TEST_DB")
 
 	return nil
 }
