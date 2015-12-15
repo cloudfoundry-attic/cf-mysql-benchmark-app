@@ -51,8 +51,8 @@ var _ = Describe("SysbenchClient", func() {
 		BeforeEach(func() {
 			cmdName = "sysbench"
 			cmdArgs = []string{
-				fmt.Sprintf("--mysql-port=%d", 3600),
 				fmt.Sprintf("--mysql-host=%s", config.MySqlHosts[nodeIndex].Address),
+				fmt.Sprintf("--mysql-port=%d", 3306),
 				fmt.Sprintf("--mysql-user=%s", config.MySqlUser),
 				fmt.Sprintf("--mysql-password=%s", config.MySqlPwd),
 				fmt.Sprintf("--mysql-db=%s", config.BenchmarkDB),
