@@ -32,8 +32,8 @@ func main() {
 		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/",
 			rootConfig.MySqlUser,
 			rootConfig.MySqlPwd,
-			host,
-			3306,
+			host.Address,
+			rootConfig.MySqlPort,
 		))
 		if err != nil {
 			logger.Fatal("Failed to create DB connections!", err)

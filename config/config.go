@@ -18,6 +18,7 @@ type Config struct {
 	DatadogKey       string      `validate:"nonzero"`
 	MySqlUser        string      `validate:"nonzero"`
 	MySqlPwd         string      `validate:"nonzero"`
+	MySqlPort        int         `validate:"nonzero"`
 	NumBenchmarkRows int         `validate:"nonzero"`
 	BenchmarkDB      string      `validate:"nonzero"`
 	Port             int         `validate:"nonzero"`
@@ -57,6 +58,10 @@ func (c *Config) ParseEnv() error {
 	c.DatadogKey = os.Getenv("DATADOG_KEY")
 	c.MySqlUser = os.Getenv("MYSQL_USER")
 	c.MySqlPwd = os.Getenv("MYSQL_PASSWORD")
+	c.MySqlPort, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
+	if c.MySqlPort == 0 {
+		c.MySqlPort = 3306
+	}
 	c.BenchmarkDB = os.Getenv("TEST_DB")
 
 	return nil

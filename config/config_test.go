@@ -37,6 +37,7 @@ var _ = Describe("Config", func() {
 			os.Unsetenv("MYSQL_HOSTS")
 			os.Unsetenv("MYSQL_USER")
 			os.Unsetenv("MYSQL_PASSWORD")
+			os.Unsetenv("MYSQL_PORT")
 			os.Unsetenv("NUMBER_TEST_ROWS")
 			os.Unsetenv("TEST_DB")
 			os.Unsetenv("PORT")
@@ -97,6 +98,26 @@ var _ = Describe("Config", func() {
 		It("returns an error if Port is blank", func() {
 			err := test_helpers.IsRequiredField(config, "Port")
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		Context("MySQL Port", func() {
+			Context("when there is no environment variable", func() {
+				BeforeEach(func() {
+					os.Unsetenv("MYSQL_PORT")
+				})
+				It("defaults to 3306", func() {
+					Expect(config.MySqlPort).To(Equal(3306))
+				})
+			})
+
+			Context("when there is no environment variable", func() {
+				BeforeEach(func() {
+					os.Setenv("MYSQL_PORT", "1234")
+				})
+				It("defaults to 3306", func() {
+					Expect(config.MySqlPort).To(Equal(1234))
+				})
+			})
 		})
 	})
 })
