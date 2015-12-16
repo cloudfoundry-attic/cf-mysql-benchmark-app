@@ -25,6 +25,7 @@ type router struct {
 func DefaultRoutes() rata.Routes {
 	return rata.Routes{
 		{Name: "start_test", Method: "POST", Path: "/start/:node"},
+		{Name: "prepare_test", Method: "POST", Path: "/prepare/:node"},
 	}
 }
 
@@ -34,7 +35,8 @@ func NewRouter(api Api) (http.Handler, error) {
 	sysbenchClient := r.api.SysbenchClient
 	api.Routes = DefaultRoutes()
 	handlers := rata.Handlers{
-		"start_test": r.getInsecureHandler(sysbenchClient.Start),
+		"start_test":   r.getInsecureHandler(sysbenchClient.Start),
+		"prepare_test": r.getInsecureHandler(sysbenchClient.Prepare),
 	}
 
 	handler, err := rata.NewRouter(api.Routes, handlers)

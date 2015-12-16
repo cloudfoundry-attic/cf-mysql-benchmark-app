@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"database/sql"
 	"fmt"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/api"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
@@ -25,7 +26,22 @@ func main() {
 	}
 
 	osClient := os_client.New()
-	sysbenchClient := sysbench_client.New(osClient, *rootConfig)
+
+	dbs := []*sql.DB{}
+	for _, host := range rootConfig.MySqlHosts {
+		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/",
+			rootConfig.MySqlUser,
+			rootConfig.MySqlPwd,
+			host,
+			3306,
+		))
+		if err != nil {
+			logger.Fatal("Failed to create DB connections!", err)
+		}
+		dbs = append(dbs, db)
+	}
+
+	sysbenchClient := sysbench_client.New(osClient, *rootConfig, dbs)
 
 	router, err := api.NewRouter(api.Api{
 		RootConfig:     rootConfig,

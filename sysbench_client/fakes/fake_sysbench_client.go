@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type FakeSysbenchClient struct {
@@ -14,6 +15,15 @@ type FakeSysbenchClient struct {
 		arg1 int
 	}
 	startReturns struct {
+		result1 string
+		result2 error
+	}
+	PrepareStub        func(int) (string, error)
+	prepareMutex       sync.RWMutex
+	prepareArgsForCall []struct {
+		arg1 int
+	}
+	prepareReturns struct {
 		result1 string
 		result2 error
 	}
@@ -47,6 +57,39 @@ func (fake *FakeSysbenchClient) StartArgsForCall(i int) int {
 func (fake *FakeSysbenchClient) StartReturns(result1 string, result2 error) {
 	fake.StartStub = nil
 	fake.startReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeSysbenchClient) Prepare(arg1 int) (string, error) {
+	fake.prepareMutex.Lock()
+	fake.prepareArgsForCall = append(fake.prepareArgsForCall, struct {
+		arg1 int
+	}{arg1})
+	fake.prepareMutex.Unlock()
+	if fake.PrepareStub != nil {
+		return fake.PrepareStub(arg1)
+	} else {
+		return fake.prepareReturns.result1, fake.prepareReturns.result2
+	}
+}
+
+func (fake *FakeSysbenchClient) PrepareCallCount() int {
+	fake.prepareMutex.RLock()
+	defer fake.prepareMutex.RUnlock()
+	return len(fake.prepareArgsForCall)
+}
+
+func (fake *FakeSysbenchClient) PrepareArgsForCall(i int) int {
+	fake.prepareMutex.RLock()
+	defer fake.prepareMutex.RUnlock()
+	return fake.prepareArgsForCall[i].arg1
+}
+
+func (fake *FakeSysbenchClient) PrepareReturns(result1 string, result2 error) {
+	fake.PrepareStub = nil
+	fake.prepareReturns = struct {
 		result1 string
 		result2 error
 	}{result1, result2}

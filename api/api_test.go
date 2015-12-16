@@ -99,4 +99,44 @@ var _ = Describe("Api", func() {
 			})
 		})
 	})
+
+	Describe("POST /prepare", func() {
+		Context("when sysbench runs successfully", func() {
+
+			BeforeEach(func() {
+				sysbenchClient.PrepareReturns("", nil)
+			})
+
+			It("sends a prepare command to the sysbench client", func() {
+				req := createReq("prepare_test")
+				resp, err := http.DefaultClient.Do(req)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(resp.StatusCode).To(Equal(http.StatusOK))
+				Expect(sysbenchClient.PrepareCallCount()).To(Equal(1))
+				Expect(sysbenchClient.PrepareArgsForCall(0)).To(Equal(nodeIndex))
+			})
+		})
+
+		Context("when sysbench returns an error", func() {
+
+			BeforeEach(func() {
+				sysbenchClient.PrepareReturns("", errors.New("fake-error"))
+			})
+
+			It("sends a prepare command to the sysbench client", func() {
+				req := createReq("prepare_test")
+				resp, err := http.DefaultClient.Do(req)
+				Expect(err).ToNot(HaveOccurred())
+
+				body, err := ioutil.ReadAll(resp.Body)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(resp.StatusCode).To(Equal(http.StatusInternalServerError))
+
+				Expect(body).To(ContainSubstring("fake-error"))
+				Expect(sysbenchClient.PrepareCallCount()).To(Equal(1))
+				Expect(sysbenchClient.PrepareArgsForCall(0)).To(Equal(nodeIndex))
+			})
+		})
+	})
 })
