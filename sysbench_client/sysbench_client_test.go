@@ -171,7 +171,7 @@ var _ = Describe("SysbenchClient", func() {
 				// sqlmock interprets expects as a regex
 				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM .*`).WillReturnRows(countRows)
 
-				mock.ExpectExec(fmt.Sprintf("DROP TABLE `%s`.sbtest", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("DROP TABLE IF EXISTS `%s`.sbtest", config.BenchmarkDB)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				_, err := sysbenchClient.Prepare(nodeIndex)

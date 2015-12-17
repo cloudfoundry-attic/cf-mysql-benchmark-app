@@ -47,48 +47,48 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 		return "", fmt.Errorf("Database could not be created! Error: %s", err.Error())
 	}
 
-	var unused string
-	err = db.QueryRow(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", dbName)).Scan(&unused)
+	dbIsTestReady, err := s.dbIsTestReady(db, nodeIndex)
+	if err != nil {
+		return "", err
+	}
 
-	switch {
-	case err == nil:
-		err = s.truncateTable(db, nodeIndex)
+	if dbIsTestReady == false {
+		_, err = db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS `%s`.sbtest", dbName))
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("Could not drop 'sbtest'! Error: %s", err.Error())
 		}
-	case err == sql.ErrNoRows:
 		err = s.prepare(nodeIndex)
 		if err != nil {
 			return "", err
 		}
-	case err != nil:
-		return "", err
 	}
 
 	return "", nil
 }
 
-func (s sysbenchClient) truncateTable(db *sql.DB, nodeIndex int) error {
+func (s sysbenchClient) dbIsTestReady(db *sql.DB, nodeIndex int) (bool, error) {
+
 	dbName := s.config.BenchmarkDB
 
+	var unused string
+	err := db.QueryRow(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", dbName)).Scan(&unused)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return false, nil
+	case err != nil:
+		return false, err
+	}
+
+	// table does exist
 	var rowCount int
-	err := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM `%s`.sbtest", dbName)).Scan(&rowCount)
+	err = db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM `%s`.sbtest", dbName)).Scan(&rowCount)
 	if err != nil {
-		return fmt.Errorf("Failed to determine row count. Error: %s", err.Error())
+		return false, err
 	}
 
-	if rowCount != s.config.NumBenchmarkRows {
-		_, err = db.Exec(fmt.Sprintf("DROP TABLE `%s`.sbtest", dbName))
-		if err != nil {
-			return fmt.Errorf("Could not drop 'sbtest'! Error: %s", err.Error())
-		}
-		err = s.prepare(nodeIndex)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	rowCountMatches := (rowCount == s.config.NumBenchmarkRows)
+	return rowCountMatches, nil
 }
 
 func (s sysbenchClient) prepare(nodeIndex int) error {
