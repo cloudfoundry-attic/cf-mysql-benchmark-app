@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/gbytes"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/pivotal-golang/lager"
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega/gbytes"
+	"github.com/pivotal-golang/lager"
 )
 
 type TestLogger struct {

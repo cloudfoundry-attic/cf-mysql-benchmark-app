@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/config"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/ginkgo/testsuite"
+	"github.com/onsi/ginkgo/config"
+	"github.com/onsi/ginkgo/ginkgo/testsuite"
 )
 
 type Notifier struct {

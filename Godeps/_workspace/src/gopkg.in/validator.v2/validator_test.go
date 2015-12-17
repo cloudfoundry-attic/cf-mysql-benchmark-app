@@ -19,8 +19,8 @@ package validator_test
 import (
 	"testing"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/gopkg.in/validator.v2"
 	. "gopkg.in/check.v1"
+	"gopkg.in/validator.v2"
 )
 
 func Test(t *testing.T) {

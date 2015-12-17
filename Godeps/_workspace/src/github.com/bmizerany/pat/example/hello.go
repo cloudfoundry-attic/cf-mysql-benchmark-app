@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/bmizerany/pat"
+	"github.com/bmizerany/pat"
 )
 
 // hello world, the web server

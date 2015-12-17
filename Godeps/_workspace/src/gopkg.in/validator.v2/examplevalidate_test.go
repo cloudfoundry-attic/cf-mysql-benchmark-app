@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/gopkg.in/validator.v2"
+	"gopkg.in/validator.v2"
 )
 
 // This example demonstrates a custom function to process template text.

@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app",
 	"GoVersion": "go1.5",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/bmizerany/pat",
@@ -9,6 +12,11 @@
 		{
 			"ImportPath": "github.com/cloudfoundry-incubator/cf-lager",
 			"Rev": "3324790250247b4d3bd3abc3e74654a537d79a30"
+		},
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-125-gd512f20",
+			"Rev": "d512f204a577a4ab037a1816604c48c9c13210be"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
@@ -21,12 +29,21 @@
 			"Rev": "0fe204460da2c8fa1babcaac196e694de8f1aaa1"
 		},
 		{
+			"ImportPath": "github.com/pivotal-cf-experimental/service-config/test_helpers",
+			"Rev": "d1936ca6555039c884eb26fabd3396a28e9c488d"
+		},
+		{
 			"ImportPath": "github.com/pivotal-golang/lager",
 			"Rev": "d0663447db75fcf983c95bda8b1a908305df6e1e"
 		},
 		{
 			"ImportPath": "github.com/tedsuo/rata",
 			"Rev": "b15ebd8bd97ae9202eb00c076d59b2f2824bce37"
+		},
+		{
+			"ImportPath": "gopkg.in/DATA-DOG/go-sqlmock.v1",
+			"Comment": "v1.0.0",
+			"Rev": "febff80c09712044459f72847e56aaa69c9dad3b"
 		},
 		{
 			"ImportPath": "gopkg.in/validator.v2",

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/bmizerany/pat"
+	"github.com/bmizerany/pat"
 )
 
 // Handlers map route names to http.Handler objects.  Each Handler key must

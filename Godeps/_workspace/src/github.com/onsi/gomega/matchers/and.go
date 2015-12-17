@@ -3,16 +3,16 @@ package matchers
 import (
 	"fmt"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/format"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/internal/oraclematcher"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/types"
+	"github.com/onsi/gomega/format"
+	"github.com/onsi/gomega/internal/oraclematcher"
+	"github.com/onsi/gomega/types"
 )
 
 type AndMatcher struct {
 	Matchers []types.GomegaMatcher
 
 	firstFailedMatcher types. // state
-	GomegaMatcher
+				GomegaMatcher
 }
 
 func (m *AndMatcher) Match(actual interface{}) (success bool, err error) {

@@ -1,6 +1,6 @@
 package matchers
 
-import "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/format"
+import "github.com/onsi/gomega/format"
 
 type BeNilMatcher struct {
 }

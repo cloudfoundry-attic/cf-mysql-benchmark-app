@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/pivotal-golang/lager"
+	"github.com/pivotal-golang/lager"
 )
 
 const (

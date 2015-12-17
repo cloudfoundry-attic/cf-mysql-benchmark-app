@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/format"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/types"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/pivotal-golang/lager/chug"
+	"github.com/onsi/gomega/format"
+	"github.com/onsi/gomega/types"
+	"github.com/pivotal-golang/lager/chug"
 )
 
 func MatchLogEntry(entry chug.LogEntry) types.GomegaMatcher {

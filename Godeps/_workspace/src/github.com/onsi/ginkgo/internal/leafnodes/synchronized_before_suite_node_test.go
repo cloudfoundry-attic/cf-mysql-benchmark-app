@@ -1,15 +1,15 @@
 package leafnodes_test
 
 import (
-	. "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo"
-	. "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/internal/leafnodes"
-	. "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/ghttp"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/internal/leafnodes"
+	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/ghttp"
 	"net/http"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/internal/codelocation"
-	Failer "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/internal/failer"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/types"
+	"github.com/onsi/ginkgo/internal/codelocation"
+	Failer "github.com/onsi/ginkgo/internal/failer"
+	"github.com/onsi/ginkgo/types"
 	"time"
 )
 

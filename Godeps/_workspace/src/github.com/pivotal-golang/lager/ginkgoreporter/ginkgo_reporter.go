@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/config"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/ginkgo/types"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/pivotal-golang/lager"
+	"github.com/onsi/ginkgo/config"
+	"github.com/onsi/ginkgo/types"
+	"github.com/pivotal-golang/lager"
 )
 
 type SuiteStartSummary struct {

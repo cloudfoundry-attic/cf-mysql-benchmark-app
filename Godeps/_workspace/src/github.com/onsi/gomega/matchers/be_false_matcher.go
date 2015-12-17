@@ -2,7 +2,7 @@ package matchers
 
 import (
 	"fmt"
-	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/Godeps/_workspace/src/github.com/onsi/gomega/format"
+	"github.com/onsi/gomega/format"
 )
 
 type BeFalseMatcher struct {
