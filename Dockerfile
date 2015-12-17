@@ -2,7 +2,7 @@ FROM ubuntu
 
 RUN apt-get -y update && \
   apt-get -y install \
-    sysbench \ 
+    sysbench \
     curl \
     python \
     git

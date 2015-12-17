@@ -11,6 +11,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"github.com/pivotal-golang/lager"
+	"github.com/pivotal-golang/lager/lagertest"
+
 )
 
 var _ = Describe("SysbenchClient", func() {
@@ -26,9 +29,12 @@ var _ = Describe("SysbenchClient", func() {
 		cmdAction      string
 		dbs            []*sql.DB
 		mockDbs        []sqlmock.Sqlmock
+		logger      lager.Logger
 	)
 
 	BeforeEach(func() {
+		logger = lagertest.NewTestLogger("sysbench_client")
+
 		osClient = &fakeOsClient.FakeOsClient{}
 		config = conf.Config{
 			MySqlHosts: []conf.MySqlHost{
@@ -50,6 +56,7 @@ var _ = Describe("SysbenchClient", func() {
 			NumBenchmarkRows: 10,
 			BenchmarkDB:      "fake-db",
 			MySqlPort:        9999,
+			Logger: logger,
 		}
 
 		dbs = []*sql.DB{}
@@ -147,8 +154,9 @@ var _ = Describe("SysbenchClient", func() {
 				// sqlmock interprets expects as a regex
 				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM .*`).WillReturnRows(countRows)
 
-				_, err := sysbenchClient.Prepare(nodeIndex)
+				str, err := sysbenchClient.Prepare(nodeIndex)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(str).To(ContainSubstring("Successfully prepared database"))
 
 				Expect(mock.ExpectationsWereMet()).To(Succeed())
 
@@ -174,8 +182,9 @@ var _ = Describe("SysbenchClient", func() {
 				mock.ExpectExec(fmt.Sprintf("DROP TABLE IF EXISTS `%s`.sbtest", config.BenchmarkDB)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				_, err := sysbenchClient.Prepare(nodeIndex)
+				str, err := sysbenchClient.Prepare(nodeIndex)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(str).To(ContainSubstring("Successfully prepared database"))
 
 				Expect(mock.ExpectationsWereMet()).To(Succeed())
 

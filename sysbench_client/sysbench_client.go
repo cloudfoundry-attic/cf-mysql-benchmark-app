@@ -7,6 +7,7 @@ import (
 	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client/os_client"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/pivotal-golang/lager"
 )
 
 type SysbenchClient interface {
@@ -29,26 +30,50 @@ func New(osClient os_client.OsClient, config conf.Config, dbs []*sql.DB) Sysbenc
 }
 
 func (s sysbenchClient) Start(nodeIndex int) (string, error) {
+	s.config.Logger.Info("Starting sysbench run", lager.Data{
+		"MySQL Node": nodeIndex,
+	})
+
 	commandArgs := s.makeCommand(nodeIndex, "run")
 
 	output, err := s.osClient.CombinedOutput("sysbench", commandArgs...)
 	if err != nil {
+		s.config.Logger.Error("Fatal - sysbench run failed", err, lager.Data{
+			"MySQL Node": nodeIndex,
+		})
 		return string(output), fmt.Errorf("Sysbench failed to run! Error: %s", err.Error())
 	}
+
+	s.config.Logger.Info("Success - sysbench run succeeded", lager.Data{
+		"MySQL Node": nodeIndex,
+	})
+
 	return string(output), nil
 }
 
 func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
+	s.config.Logger.Info("Starting to prepare sysbench DB", lager.Data{
+		"MySQL Node": nodeIndex,
+	})
+
 	db := s.dbs[nodeIndex]
 	dbName := s.config.BenchmarkDB
 
 	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", dbName))
 	if err != nil {
+		s.config.Logger.Error("Fatal - failed to create DB", err, lager.Data{
+			"MySQL Node": nodeIndex,
+			"Database Name": dbName,
+		})
 		return "", fmt.Errorf("Database could not be created! Error: %s", err.Error())
 	}
 
 	dbIsTestReady, err := s.dbIsTestReady(db, nodeIndex)
 	if err != nil {
+		s.config.Logger.Error("Fatal - unable to determine state of DB", err, lager.Data{
+			"MySQL Node": nodeIndex,
+			"Database Name": dbName,
+		})
 		return "", err
 	}
 
@@ -59,11 +84,20 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 		}
 		err = s.prepare(nodeIndex)
 		if err != nil {
+			s.config.Logger.Error("Fatal - ", err, lager.Data{
+				"MySQL Node": nodeIndex,
+			})
 			return "", err
 		}
+		s.config.Logger.Info("Success - Sysbench prepared test DB ", lager.Data{
+			"MySQL Node": nodeIndex,
+		})
 	}
+	s.config.Logger.Info("Success - Node is ready for test", lager.Data{
+		"MySQL Node": nodeIndex,
+	})
 
-	return "", nil
+	return fmt.Sprintf("Successfully prepared database: %s", dbName), nil
 }
 
 func (s sysbenchClient) dbIsTestReady(db *sql.DB, nodeIndex int) (bool, error) {
