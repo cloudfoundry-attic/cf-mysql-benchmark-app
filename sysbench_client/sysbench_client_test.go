@@ -135,16 +135,16 @@ var _ = Describe("SysbenchClient", func() {
 			It("does not run sysbench prepare", func() {
 				mock := mockDbs[nodeIndex]
 
-				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.BenchmarkDB)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("CREATE TABLE IF NOT EXISTS sbtest").
-					WillReturnResult(sqlmock.NewResult(1, 1))
+				tableRows := sqlmock.NewRows([]string{"name"}).AddRow("sbtest")
+				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.BenchmarkDB)).
+					WillReturnRows(tableRows)
 
-				rows := sqlmock.NewRows([]string{"count"}).AddRow(config.NumBenchmarkRows)
+				countRows := sqlmock.NewRows([]string{"count"}).AddRow(config.NumBenchmarkRows)
 				// sqlmock interprets expects as a regex
-				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM sbtest`).
-					WillReturnRows(rows)
+				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM .*`).WillReturnRows(countRows)
 
 				_, err := sysbenchClient.Prepare(nodeIndex)
 				Expect(err).ToNot(HaveOccurred())
@@ -159,18 +159,18 @@ var _ = Describe("SysbenchClient", func() {
 			It("truncates the table and runs sysbench prepare", func() {
 				mock := mockDbs[nodeIndex]
 
-				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.BenchmarkDB)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("CREATE TABLE IF NOT EXISTS sbtest").
-					WillReturnResult(sqlmock.NewResult(1, 1))
+				tableRows := sqlmock.NewRows([]string{"name"}).AddRow("sbtest")
+				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.BenchmarkDB)).
+					WillReturnRows(tableRows)
 
-				rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+				countRows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 				// sqlmock interprets expects as a regex
-				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM sbtest`).
-					WillReturnRows(rows)
+				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM .*`).WillReturnRows(countRows)
 
-				mock.ExpectExec("TRUNCATE TABLE sbtest").
+				mock.ExpectExec(fmt.Sprintf("DROP TABLE `%s`.sbtest", config.BenchmarkDB)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				_, err := sysbenchClient.Prepare(nodeIndex)

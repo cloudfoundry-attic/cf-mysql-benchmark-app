@@ -40,38 +40,64 @@ func (s sysbenchClient) Start(nodeIndex int) (string, error) {
 
 func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 	db := s.dbs[nodeIndex]
-	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", s.config.BenchmarkDB))
+	dbName := s.config.BenchmarkDB
+
+	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", dbName))
 	if err != nil {
 		return "", fmt.Errorf("Database could not be created! Error: %s", err.Error())
 	}
 
-	// 'sbtest' is the default table name that sysbench creates for its testing.
-	// There isn't any way to configure it differently, afawk.
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS sbtest")
-	if err != nil {
-		return "", fmt.Errorf("Table 'sbtest' could not be created! Error: %s", err.Error())
-	}
+	var unused string
+	err = db.QueryRow(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", dbName)).Scan(&unused)
 
-	var rowCount int
-	err = db.QueryRow("SELECT COUNT(*) FROM sbtest").Scan(&rowCount)
-	if err != nil {
-		return "", fmt.Errorf("Failed to determine row count. Error: %s", err.Error())
-	}
-
-	if rowCount != s.config.NumBenchmarkRows {
-		_, err = db.Exec("TRUNCATE TABLE sbtest")
+	switch {
+	case err == nil:
+		err = s.truncateTable(db, nodeIndex)
 		if err != nil {
-			return "", fmt.Errorf("Could not truncate 'sbtest'! Error: %s", err.Error())
+			return "", err
 		}
-
-		commandArgs := s.makeCommand(nodeIndex, "prepare")
-		_, err = s.osClient.CombinedOutput("sysbench", commandArgs...)
+	case err == sql.ErrNoRows:
+		err = s.prepare(nodeIndex)
 		if err != nil {
-			return "", fmt.Errorf("Sysbench failed to prepare! Error %s", err.Error())
+			return "", err
 		}
+	case err != nil:
+		return "", err
 	}
 
 	return "", nil
+}
+
+func (s sysbenchClient) truncateTable(db *sql.DB, nodeIndex int) error {
+	dbName := s.config.BenchmarkDB
+
+	var rowCount int
+	err := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM `%s`.sbtest", dbName)).Scan(&rowCount)
+	if err != nil {
+		return fmt.Errorf("Failed to determine row count. Error: %s", err.Error())
+	}
+
+	if rowCount != s.config.NumBenchmarkRows {
+		_, err = db.Exec(fmt.Sprintf("DROP TABLE `%s`.sbtest", dbName))
+		if err != nil {
+			return fmt.Errorf("Could not drop 'sbtest'! Error: %s", err.Error())
+		}
+		err = s.prepare(nodeIndex)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s sysbenchClient) prepare(nodeIndex int) error {
+	commandArgs := s.makeCommand(nodeIndex, "prepare")
+	output, err := s.osClient.CombinedOutput("sysbench", commandArgs...)
+	if err != nil {
+		return fmt.Errorf("Sysbench failed to prepare! Error %s, Output: %s", err.Error(), output)
+	}
+	return nil
 }
 
 func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []string {
