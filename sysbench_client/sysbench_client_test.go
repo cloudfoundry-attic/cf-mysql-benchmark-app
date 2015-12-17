@@ -10,10 +10,9 @@ import (
 	fakeOsClient "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client/os_client/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
-
+	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 var _ = Describe("SysbenchClient", func() {
@@ -29,7 +28,7 @@ var _ = Describe("SysbenchClient", func() {
 		cmdAction      string
 		dbs            []*sql.DB
 		mockDbs        []sqlmock.Sqlmock
-		logger      lager.Logger
+		logger         lager.Logger
 	)
 
 	BeforeEach(func() {
@@ -56,7 +55,8 @@ var _ = Describe("SysbenchClient", func() {
 			NumBenchmarkRows: 10,
 			BenchmarkDB:      "fake-db",
 			MySqlPort:        9999,
-			Logger: logger,
+			MaxTime:          1234,
+			Logger:           logger,
 		}
 
 		dbs = []*sql.DB{}
@@ -82,6 +82,7 @@ var _ = Describe("SysbenchClient", func() {
 			fmt.Sprintf("--mysql-db=%s", config.BenchmarkDB),
 			fmt.Sprintf("--test=%s", "oltp"),
 			fmt.Sprintf("--oltp-table-size=%d", config.NumBenchmarkRows),
+			fmt.Sprintf("--max-time=%d", config.MaxTime),
 			cmdAction,
 		}
 	})

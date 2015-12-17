@@ -22,6 +22,7 @@ type Config struct {
 	NumBenchmarkRows int         `validate:"nonzero"`
 	BenchmarkDB      string      `validate:"nonzero"`
 	Port             int         `validate:"nonzero"`
+	MaxTime          int         `validate:"nonzero"`
 	Logger           lager.Logger
 }
 
@@ -61,6 +62,10 @@ func (c *Config) ParseEnv() error {
 	c.MySqlPort, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
 	if c.MySqlPort == 0 {
 		c.MySqlPort = 3306
+	}
+	c.MaxTime, _ = strconv.Atoi(os.Getenv("MAX_TIME"))
+	if c.MaxTime == 0 {
+		c.MaxTime = 60
 	}
 	c.BenchmarkDB = os.Getenv("TEST_DB")
 

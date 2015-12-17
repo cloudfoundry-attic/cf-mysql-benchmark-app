@@ -62,7 +62,7 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", dbName))
 	if err != nil {
 		s.config.Logger.Error("Fatal - failed to create DB", err, lager.Data{
-			"MySQL Node": nodeIndex,
+			"MySQL Node":    nodeIndex,
 			"Database Name": dbName,
 		})
 		return "", fmt.Errorf("Database could not be created! Error: %s", err.Error())
@@ -71,7 +71,7 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 	dbIsTestReady, err := s.dbIsTestReady(db, nodeIndex)
 	if err != nil {
 		s.config.Logger.Error("Fatal - unable to determine state of DB", err, lager.Data{
-			"MySQL Node": nodeIndex,
+			"MySQL Node":    nodeIndex,
 			"Database Name": dbName,
 		})
 		return "", err
@@ -143,6 +143,7 @@ func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []str
 		fmt.Sprintf("--mysql-db=%s", s.config.BenchmarkDB),
 		fmt.Sprintf("--test=%s", "oltp"),
 		fmt.Sprintf("--oltp-table-size=%d", s.config.NumBenchmarkRows),
+		fmt.Sprintf("--max-time=%d", s.config.MaxTime),
 	}
 	return append(cmdArgs, sysbenchCommand)
 }

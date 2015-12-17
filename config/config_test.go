@@ -119,5 +119,25 @@ var _ = Describe("Config", func() {
 				})
 			})
 		})
+
+		Context("Test Max Time", func() {
+			Context("when there is no environment variable", func() {
+				BeforeEach(func() {
+					os.Unsetenv("MAX_TIME")
+				})
+				It("defaults to 60", func() {
+					Expect(config.MaxTime).To(Equal(60))
+				})
+			})
+
+			Context("when there is no environment variable", func() {
+				BeforeEach(func() {
+					os.Setenv("MAX_TIME", "1234")
+				})
+				It("sets it to the specified value", func() {
+					Expect(config.MaxTime).To(Equal(1234))
+				})
+			})
+		})
 	})
 })
