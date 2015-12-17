@@ -49,6 +49,7 @@ var _ = Describe("SysbenchClient", func() {
 			MySqlPwd:         "fake-mysql-pwd",
 			NumBenchmarkRows: 10,
 			BenchmarkDB:      "fake-db",
+			MySqlPort:        9999,
 		}
 
 		dbs = []*sql.DB{}
@@ -68,7 +69,7 @@ var _ = Describe("SysbenchClient", func() {
 		cmdName = "sysbench"
 		cmdArgs = []string{
 			fmt.Sprintf("--mysql-host=%s", config.MySqlHosts[nodeIndex].Address),
-			fmt.Sprintf("--mysql-port=%d", 3306),
+			fmt.Sprintf("--mysql-port=%d", config.MySqlPort),
 			fmt.Sprintf("--mysql-user=%s", config.MySqlUser),
 			fmt.Sprintf("--mysql-password=%s", config.MySqlPwd),
 			fmt.Sprintf("--mysql-db=%s", config.BenchmarkDB),

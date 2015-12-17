@@ -103,7 +103,7 @@ func (s sysbenchClient) prepare(nodeIndex int) error {
 func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []string {
 	cmdArgs := []string{
 		fmt.Sprintf("--mysql-host=%s", s.config.MySqlHosts[nodeIndex].Address),
-		fmt.Sprintf("--mysql-port=%d", 3306),
+		fmt.Sprintf("--mysql-port=%d", s.config.MySqlPort),
 		fmt.Sprintf("--mysql-user=%s", s.config.MySqlUser),
 		fmt.Sprintf("--mysql-password=%s", s.config.MySqlPwd),
 		fmt.Sprintf("--mysql-db=%s", s.config.BenchmarkDB),
