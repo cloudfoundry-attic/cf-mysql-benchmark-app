@@ -23,7 +23,6 @@ var _ = Describe("Config", func() {
 		})
 
 		BeforeEach(func() {
-			os.Setenv("DATADOG_KEY", "some-datadog-key")
 			os.Setenv("MYSQL_HOSTS", "backend1=1.1.1.1,proxy1=2.2.2.2,elb=some.dns.name")
 			os.Setenv("MYSQL_USER", "some-mysql-user")
 			os.Setenv("MYSQL_PASSWORD", "some-mysql-password")
@@ -33,7 +32,6 @@ var _ = Describe("Config", func() {
 		})
 
 		AfterEach(func() {
-			os.Unsetenv("DATADOG_KEY")
 			os.Unsetenv("MYSQL_HOSTS")
 			os.Unsetenv("MYSQL_USER")
 			os.Unsetenv("MYSQL_PASSWORD")

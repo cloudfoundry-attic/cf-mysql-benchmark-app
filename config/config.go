@@ -15,7 +15,6 @@ import (
 
 type Config struct {
 	MySqlHosts       []MySqlHost `validate:"min=1"`
-	DatadogKey       string      `validate:"nonzero"`
 	MySqlUser        string      `validate:"nonzero"`
 	MySqlPwd         string      `validate:"nonzero"`
 	MySqlPort        int         `validate:"nonzero"`
@@ -56,7 +55,6 @@ func (c *Config) ParseEnv() error {
 		}
 		c.MySqlHosts = append(c.MySqlHosts, newHost)
 	}
-	c.DatadogKey = os.Getenv("DATADOG_KEY")
 	c.MySqlUser = os.Getenv("MYSQL_USER")
 	c.MySqlPwd = os.Getenv("MYSQL_PASSWORD")
 	c.MySqlPort, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
