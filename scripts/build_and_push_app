@@ -1,0 +1,13 @@
+#! /bin/bash
+
+: ${CF_API_URL:?}
+: ${CF_USERNAME:?}
+: ${CF_PASSWORD:?}
+: ${CF_ORG}
+: ${CF_SPACE}
+: ${APP_MANIFEST_FILE}
+
+cf api ${CF_API_URL:?}
+cf login -u "${CF_USERNAME}" -p "${CF_PASSWORD}"
+cf target -o ${CF_ORG} -s ${CF_SPACE}
+cf push -f ${APP_MANIFEST_FILE} -o pivotalcf/cf-mysql-benchmark-app
