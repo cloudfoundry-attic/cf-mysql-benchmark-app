@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"database/sql"
+
 	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client"
 	fakeOsClient "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client/os_client/fakes"
@@ -56,6 +57,7 @@ var _ = Describe("SysbenchClient", func() {
 			BenchmarkDB:      "fake-db",
 			MySqlPort:        9999,
 			MaxTime:          1234,
+			NumThreads:       23,
 			Logger:           logger,
 		}
 
@@ -83,6 +85,7 @@ var _ = Describe("SysbenchClient", func() {
 			fmt.Sprintf("--test=%s", "oltp"),
 			fmt.Sprintf("--oltp-table-size=%d", config.NumBenchmarkRows),
 			fmt.Sprintf("--max-time=%d", config.MaxTime),
+			fmt.Sprintf("--num-threads=%d", config.NumThreads),
 			cmdAction,
 		}
 	})

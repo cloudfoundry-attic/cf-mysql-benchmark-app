@@ -22,6 +22,7 @@ type Config struct {
 	BenchmarkDB      string      `validate:"nonzero"`
 	Port             int         `validate:"nonzero"`
 	MaxTime          int         `validate:"nonzero"`
+	NumThreads       int         `validate:"nonzero"`
 	Logger           lager.Logger
 }
 
@@ -65,6 +66,12 @@ func (c *Config) ParseEnv() error {
 	if c.MaxTime == 0 {
 		c.MaxTime = 60
 	}
+
+	c.NumThreads, _ = strconv.Atoi(os.Getenv("NUM_THREADS"))
+	if c.NumThreads == 0 {
+		c.NumThreads = 1
+	}
+
 	c.BenchmarkDB = os.Getenv("TEST_DB")
 
 	return nil

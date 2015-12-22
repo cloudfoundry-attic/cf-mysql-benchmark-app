@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"database/sql"
+
 	conf "github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/config"
 	"github.com/cloudfoundry-incubator/cf-mysql-benchmark-app/sysbench_client/os_client"
 	_ "github.com/go-sql-driver/mysql"
@@ -144,6 +145,7 @@ func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []str
 		fmt.Sprintf("--test=%s", "oltp"),
 		fmt.Sprintf("--oltp-table-size=%d", s.config.NumBenchmarkRows),
 		fmt.Sprintf("--max-time=%d", s.config.MaxTime),
+		fmt.Sprintf("--num-threads=%d", s.config.NumThreads),
 	}
 	return append(cmdArgs, sysbenchCommand)
 }

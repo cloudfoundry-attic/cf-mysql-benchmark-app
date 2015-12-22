@@ -39,6 +39,7 @@ var _ = Describe("Config", func() {
 			os.Unsetenv("NUMBER_TEST_ROWS")
 			os.Unsetenv("TEST_DB")
 			os.Unsetenv("PORT")
+			os.Unsetenv("NUM_THREADS")
 		})
 
 		It("does not return error on valid config", func() {
@@ -128,12 +129,32 @@ var _ = Describe("Config", func() {
 				})
 			})
 
-			Context("when there is no environment variable", func() {
+			Context("when there is an environment variable", func() {
 				BeforeEach(func() {
 					os.Setenv("MAX_TIME", "1234")
 				})
 				It("sets it to the specified value", func() {
 					Expect(config.MaxTime).To(Equal(1234))
+				})
+			})
+		})
+
+		Context("Number of threads", func() {
+			Context("when there is no environment variable", func() {
+				BeforeEach(func() {
+					os.Unsetenv("NUM_THREADS")
+				})
+				It("defaults to 1", func() {
+					Expect(config.NumThreads).To(Equal(1))
+				})
+			})
+
+			Context("when there is an environment variable", func() {
+				BeforeEach(func() {
+					os.Setenv("NUM_THREADS", "1234")
+				})
+				It("sets it to the specified value", func() {
+					Expect(config.NumThreads).To(Equal(1234))
 				})
 			})
 		})
