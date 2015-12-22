@@ -34,13 +34,16 @@ applications:
       MYSQL_PASSWORD: <MYSQL_PASSWORD>
       TEST_DB: <NAME_OF_TEST_DATABASE_CREATED_BY_SYSBENCH>
       NUMBER_TEST_ROWS: <NUMBER OF ROWS >
+      MAX_TIME: <NUMBER OF SECONDS TO RUN TEST>
+      NUM_THREADS: <NUMBER OF CORES TO USE FOR TEST>
 ```
 
-- `MYSQL_HOSTS` contains the IP addresses of the nodes in the MySQL cluster, MyS-QL Proxies, or MySQL cluster ELBs – essentially any IP address that the app can use to talk to the cluster.
+- `MYSQL_HOSTS` contains the IP addresses of the nodes in the MySQL cluster, MySQL Proxies, or MySQL cluster ELBs – essentially any IP address that the app can use to talk to the cluster.
 - `MYSQL_PORT` the port on which to connect to the MySQL cluster
 - `NUMBER_TEST_ROWS` specifies the number of rows we want sysbench to write to the test database it creates, the name of which is specified in `TEST_DB`.
 - `TEST_DB` is the name of the database that should be used to run the tests against
-
+- `MAX_TIME` is the length to run the `sysbench run` command, in SECONDS
+- `NUM_THREADS` is the number of cores to use for the test
 
 ### Usage
 
