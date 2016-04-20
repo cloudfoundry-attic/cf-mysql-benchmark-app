@@ -28,7 +28,7 @@ A sample manifest file for the app is structured as follows:
 applications:
   - name: sysbench
     env:
-      MYSQL_HOSTS: "mysql_z1=<IP_OF_MYSQL_NODE_1>,mysql_z2=<IP_OF_MYSQL_NODE_2>,mysql_z3=<IP_OF_MYSQL_NODE_3>
+      MYSQL_HOSTS: "mysql_z1=<IP_OF_MYSQL_NODE_1>,mysql_z2=<IP_OF_MYSQL_NODE_2>,mysql_z3=<IP_OF_MYSQL_NODE_3>"
       MYSQL_PORT: <MYSQL_DATABASE_PORT>
       MYSQL_USER: <MYSQL_USERNAME>
       MYSQL_PASSWORD: <MYSQL_PASSWORD>
