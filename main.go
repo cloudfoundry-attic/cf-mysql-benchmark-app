@@ -28,10 +28,10 @@ func main() {
 	osClient := os_client.New()
 
 	dbs := []*sql.DB{}
-	for _, host := range rootConfig.MySqlHosts {
+	for _, host := range rootConfig.MySqlHost {
 		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/",
 			rootConfig.MySqlUser,
-			rootConfig.MySqlPwd,
+			rootConfig.MySqlPassword,
 			host.Address,
 			rootConfig.MySqlPort,
 		))

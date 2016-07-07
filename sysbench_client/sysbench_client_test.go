@@ -37,7 +37,7 @@ var _ = Describe("SysbenchClient", func() {
 
 		osClient = &fakeOsClient.FakeOsClient{}
 		config = conf.Config{
-			MySqlHosts: []conf.MySqlHost{
+			MySqlHost: []conf.MySqlHost{
 				{
 					Name:    "host-0",
 					Address: "1.1.1.1",
@@ -52,9 +52,9 @@ var _ = Describe("SysbenchClient", func() {
 				},
 			},
 			MySqlUser:        "fake-mysql-user",
-			MySqlPwd:         "fake-mysql-pwd",
+			MySqlPassword:         "fake-mysql-pwd",
 			NumBenchmarkRows: 10,
-			BenchmarkDB:      "fake-db",
+			DBName:      "fake-db",
 			MySqlPort:        9999,
 			MaxTime:          1234,
 			NumThreads:       23,
@@ -77,11 +77,11 @@ var _ = Describe("SysbenchClient", func() {
 	JustBeforeEach(func() {
 		cmdName = "sysbench"
 		cmdArgs = []string{
-			fmt.Sprintf("--mysql-host=%s", config.MySqlHosts[nodeIndex].Address),
+			fmt.Sprintf("--mysql-host=%s", config.MySqlHost[nodeIndex].Address),
 			fmt.Sprintf("--mysql-port=%d", config.MySqlPort),
 			fmt.Sprintf("--mysql-user=%s", config.MySqlUser),
-			fmt.Sprintf("--mysql-password=%s", config.MySqlPwd),
-			fmt.Sprintf("--mysql-db=%s", config.BenchmarkDB),
+			fmt.Sprintf("--mysql-password=%s", config.MySqlPassword),
+			fmt.Sprintf("--mysql-db=%s", config.DBName),
 			fmt.Sprintf("--test=%s", "oltp"),
 			fmt.Sprintf("--oltp-table-size=%d", config.NumBenchmarkRows),
 			fmt.Sprintf("--max-time=%d", config.MaxTime),
@@ -147,11 +147,11 @@ var _ = Describe("SysbenchClient", func() {
 			It("does not run sysbench prepare", func() {
 				mock := mockDbs[nodeIndex]
 
-				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.DBName)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				tableRows := sqlmock.NewRows([]string{"name"}).AddRow("sbtest")
-				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.BenchmarkDB)).
+				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.DBName)).
 					WillReturnRows(tableRows)
 
 				countRows := sqlmock.NewRows([]string{"count"}).AddRow(config.NumBenchmarkRows)
@@ -172,18 +172,18 @@ var _ = Describe("SysbenchClient", func() {
 			It("truncates the table and runs sysbench prepare", func() {
 				mock := mockDbs[nodeIndex]
 
-				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", config.DBName)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				tableRows := sqlmock.NewRows([]string{"name"}).AddRow("sbtest")
-				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.BenchmarkDB)).
+				mock.ExpectQuery(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", config.DBName)).
 					WillReturnRows(tableRows)
 
 				countRows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 				// sqlmock interprets expects as a regex
 				mock.ExpectQuery(`SELECT COUNT\(\*\) FROM .*`).WillReturnRows(countRows)
 
-				mock.ExpectExec(fmt.Sprintf("DROP TABLE IF EXISTS `%s`.sbtest", config.BenchmarkDB)).
+				mock.ExpectExec(fmt.Sprintf("DROP TABLE IF EXISTS `%s`.sbtest", config.DBName)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				str, err := sysbenchClient.Prepare(nodeIndex)

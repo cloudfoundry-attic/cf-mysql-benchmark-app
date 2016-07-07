@@ -6,21 +6,25 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
+	//"strings"
 
 	"github.com/cloudfoundry-incubator/cf-lager"
 	"github.com/pivotal-golang/lager"
 	"gopkg.in/validator.v2"
 )
 
+const DefaultMaxTime = 60
+const DefaultNumThreads = 1
+const DefaultBenchmarkRows = 100000
+
 type Config struct {
-	MySqlHosts       []MySqlHost `validate:"min=1"`
+	MySqlHost        MySqlHost   `validate`
 	MySqlUser        string      `validate:"nonzero"`
-	MySqlPwd         string      `validate:"nonzero"`
+	MySqlPassword    string      `validate:"nonzero"`
 	MySqlPort        int         `validate:"nonzero"`
+	DBName           string      `validate:"nonzero"`
+	APIPort          int         `validate:"nonzero"`
 	NumBenchmarkRows int         `validate:"nonzero"`
-	BenchmarkDB      string      `validate:"nonzero"`
-	Port             int         `validate:"nonzero"`
 	MaxTime          int         `validate:"nonzero"`
 	NumThreads       int         `validate:"nonzero"`
 	Logger           lager.Logger
@@ -41,40 +45,18 @@ func NewConfig() *Config {
 	return &rootConfig
 }
 
-func (c *Config) ParseEnv() error {
-
-	// will default to 0 if strconv fails
-	c.NumBenchmarkRows, _ = strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
-	c.Port, _ = strconv.Atoi(os.Getenv("PORT"))
-
-	c.MySqlHosts = []MySqlHost{}
-	hosts := strings.Split(os.Getenv("MYSQL_HOSTS"), ",")
-	for _, host := range hosts {
-		newHost := MySqlHost{
-			Name:    strings.Split(host, "=")[0],
-			Address: strings.Split(host, "=")[1],
-		}
-		c.MySqlHosts = append(c.MySqlHosts, newHost)
-	}
-	c.MySqlUser = os.Getenv("MYSQL_USER")
-	c.MySqlPwd = os.Getenv("MYSQL_PASSWORD")
-	c.MySqlPort, _ = strconv.Atoi(os.Getenv("MYSQL_PORT"))
-	if c.MySqlPort == 0 {
-		c.MySqlPort = 3306
-	}
-	c.MaxTime, _ = strconv.Atoi(os.Getenv("MAX_TIME"))
-	if c.MaxTime == 0 {
-		c.MaxTime = 60
-	}
+func (c *Config) ParseEnv() {
+	c.MaxTime = stringToIntOrDefault(os.Getenv("MAX_TIME"), DefaultMaxTime)
 
 	c.NumThreads, _ = strconv.Atoi(os.Getenv("NUM_THREADS"))
 	if c.NumThreads == 0 {
-		c.NumThreads = 1
+		c.NumThreads = DefaultNumThreads
 	}
 
-	c.BenchmarkDB = os.Getenv("TEST_DB")
-
-	return nil
+	c.NumBenchmarkRows, _ = strconv.Atoi(os.Getenv("NUMBER_TEST_ROWS"))
+	if c.NumBenchmarkRows == 0 {
+		c.NumBenchmarkRows = DefaultBenchmarkRows
+	}
 }
 
 func (c Config) Validate() error {
@@ -82,17 +64,6 @@ func (c Config) Validate() error {
 	var errString string
 	if rootConfigErr != nil {
 		errString = formatErrorString(rootConfigErr, "")
-	}
-
-	// validator.Validate does not work on nested arrays
-	for i, host := range c.MySqlHosts {
-		nestedErr := validator.Validate(host)
-		if nestedErr != nil {
-			errString += formatErrorString(
-				nestedErr,
-				fmt.Sprintf("MySqlHosts[%d].", i),
-			)
-		}
 	}
 
 	if len(errString) > 0 {
@@ -108,4 +79,14 @@ func formatErrorString(err error, keyPrefix string) string {
 		errsString += fmt.Sprintf("%s%s : %s\n", keyPrefix, fieldName, validationMessage)
 	}
 	return errsString
+}
+
+func stringToIntOrDefault(stringValue string, otherwise int) int {
+	result, err := strconv.Atoi(stringValue)
+
+	if err != nil {
+		result = otherwise
+	}
+
+	return result
 }

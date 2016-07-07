@@ -58,7 +58,7 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 	})
 
 	db := s.dbs[nodeIndex]
-	dbName := s.config.BenchmarkDB
+	dbName := s.config.DBName
 
 	_, err := db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", dbName))
 	if err != nil {
@@ -103,7 +103,7 @@ func (s sysbenchClient) Prepare(nodeIndex int) (string, error) {
 
 func (s sysbenchClient) dbIsTestReady(db *sql.DB, nodeIndex int) (bool, error) {
 
-	dbName := s.config.BenchmarkDB
+	dbName := s.config.DBName
 
 	var unused string
 	err := db.QueryRow(fmt.Sprintf("SHOW TABLES IN `%s` LIKE 'sbtest'", dbName)).Scan(&unused)
@@ -137,11 +137,11 @@ func (s sysbenchClient) prepare(nodeIndex int) error {
 
 func (s sysbenchClient) makeCommand(nodeIndex int, sysbenchCommand string) []string {
 	cmdArgs := []string{
-		fmt.Sprintf("--mysql-host=%s", s.config.MySqlHosts[nodeIndex].Address),
+		fmt.Sprintf("--mysql-host=%s", s.config.MySqlHost[nodeIndex].Address),
 		fmt.Sprintf("--mysql-port=%d", s.config.MySqlPort),
 		fmt.Sprintf("--mysql-user=%s", s.config.MySqlUser),
-		fmt.Sprintf("--mysql-password=%s", s.config.MySqlPwd),
-		fmt.Sprintf("--mysql-db=%s", s.config.BenchmarkDB),
+		fmt.Sprintf("--mysql-password=%s", s.config.MySqlPassword),
+		fmt.Sprintf("--mysql-db=%s", s.config.DBName),
 		fmt.Sprintf("--test=%s", "oltp"),
 		fmt.Sprintf("--oltp-table-size=%d", s.config.NumBenchmarkRows),
 		fmt.Sprintf("--max-time=%d", s.config.MaxTime),

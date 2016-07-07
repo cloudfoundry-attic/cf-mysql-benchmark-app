@@ -1,0 +1,11 @@
+---
+app_definitions:
+  sysbench: &SYSBENCH
+    - env:
+      NUMBER_TEST_ROWS: 1000
+      MAX_TIME: 60
+      NUM_THREADS: 1
+
+applications:
+  - *SYSBENCH
+    name: sysbench-1
